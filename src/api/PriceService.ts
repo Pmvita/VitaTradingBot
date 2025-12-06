@@ -73,7 +73,15 @@ class PriceService {
     limit: number = 100
   ): Promise<ApiResponse<OHLCV[]>> {
     try {
-      // Use CoinGecko for historical data
+      // Try Binance first for proper OHLCV candlestick data
+      if (symbol.includes('/')) {
+        const binanceResult = await this.getBinanceOHLCV(symbol, timeframe, limit);
+        if (binanceResult.success && binanceResult.data) {
+          return binanceResult;
+        }
+      }
+
+      // Fallback to CoinGecko (less accurate but works for more symbols)
       const coinId = this.mapSymbolToCoinGeckoId(symbol);
       if (!coinId) {
         return { success: false, error: 'Symbol not supported' };
@@ -81,29 +89,26 @@ class PriceService {
 
       const days = this.timeframeToDays(timeframe, limit);
       const response = await axios.get(
-        `${API_ENDPOINTS.COINGECKO}/coins/${coinId}/market_chart`,
+        `${API_ENDPOINTS.COINGECKO}/coins/${coinId}/ohlc`,
         {
           params: {
             vs_currency: 'usd',
             days,
-            interval: this.getInterval(timeframe),
           },
           timeout: 15000,
         }
       );
 
-      const prices = response.data.prices || [];
-      const volumes = response.data.total_volumes || [];
+      const ohlcData = response.data || [];
 
-      const ohlcv: OHLCV[] = prices.map((price: [number, number], index: number) => {
-        const volume = volumes[index]?.[1] || 0;
+      const ohlcv: OHLCV[] = ohlcData.map((candle: [number, number, number, number, number]) => {
         return {
-          timestamp: price[0],
-          open: price[1],
-          high: price[1],
-          low: price[1],
-          close: price[1],
-          volume,
+          timestamp: candle[0],
+          open: candle[1],
+          high: candle[2],
+          low: candle[3],
+          close: candle[4],
+          volume: 0, // CoinGecko OHLC doesn't include volume
         };
       });
 
@@ -115,11 +120,68 @@ class PriceService {
   }
 
   /**
+   * Get OHLCV data from Binance (proper candlestick data)
+   */
+  private async getBinanceOHLCV(
+    symbol: string,
+    timeframe: Timeframe,
+    limit: number = 100
+  ): Promise<ApiResponse<OHLCV[]>> {
+    try {
+      const binanceSymbol = symbol.replace('/', '').toUpperCase();
+      const interval = this.timeframeToBinanceInterval(timeframe);
+      
+      const response = await axios.get(`${API_ENDPOINTS.BINANCE}/klines`, {
+        params: {
+          symbol: binanceSymbol,
+          interval,
+          limit,
+        },
+        timeout: 15000,
+      });
+
+      const klines = response.data || [];
+      
+      const ohlcv: OHLCV[] = klines.map((kline: any[]) => {
+        return {
+          timestamp: kline[0],
+          open: parseFloat(kline[1]),
+          high: parseFloat(kline[2]),
+          low: parseFloat(kline[3]),
+          close: parseFloat(kline[4]),
+          volume: parseFloat(kline[5]),
+        };
+      });
+
+      return { success: true, data: ohlcv };
+    } catch (error) {
+      logger.error('Failed to fetch Binance OHLCV data', error as Error, { symbol, timeframe });
+      return { success: false, error: (error as Error).message };
+    }
+  }
+
+  /**
+   * Convert timeframe to Binance interval
+   */
+  private timeframeToBinanceInterval(timeframe: Timeframe): string {
+    const mapping: Record<Timeframe, string> = {
+      '1m': '1m',
+      '5m': '5m',
+      '15m': '15m',
+      '30m': '30m',
+      '1h': '1h',
+      '4h': '4h',
+      '1d': '1d',
+    };
+    return mapping[timeframe] || '1h';
+  }
+
+  /**
    * Get price from Binance
    */
   private async getBinancePrice(symbol: string): Promise<ApiResponse<PriceData>> {
     try {
-      const binanceSymbol = symbol.replace('/', '');
+      const binanceSymbol = symbol.replace('/', '').toUpperCase();
       const response = await axios.get(`${API_ENDPOINTS.BINANCE}/ticker/24hr`, {
         params: { symbol: binanceSymbol },
         timeout: 10000,

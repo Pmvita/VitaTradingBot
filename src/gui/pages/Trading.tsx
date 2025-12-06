@@ -190,6 +190,7 @@ export const Trading: React.FC = () => {
           <StrategyConfigComponent
             strategyType={selectedStrategy}
             timeframe={selectedTimeframe}
+            symbol={selectedSymbol}
             onConfigSave={(config) => handleStart(config)}
           />
         </div>

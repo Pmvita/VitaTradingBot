@@ -97,6 +97,7 @@ export const BotControl: React.FC<BotControlProps> = ({
       type: selectedStrategy,
       name: `${selectedStrategy} Strategy`,
       enabled: true,
+      symbol: selectedSymbol || 'BTC/USDT', // Include selected symbol
       timeframe: selectedTimeframe,
       parameters: {},
       riskManagement: {

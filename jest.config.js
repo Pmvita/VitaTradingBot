@@ -2,12 +2,14 @@
 
 module.exports = {
   preset: 'ts-jest',
-  testEnvironment: 'node',
+  testEnvironment: 'jsdom', // Changed to jsdom for React component testing
   roots: ['<rootDir>/src', '<rootDir>/tests'],
-  testMatch: ['**/__tests__/**/*.ts', '**/?(*.)+(spec|test).ts'],
+  testMatch: ['**/__tests__/**/*.ts', '**/__tests__/**/*.tsx', '**/?(*.)+(spec|test).ts', '**/?(*.)+(spec|test).tsx'],
   transform: {
     '^.+\\.ts$': 'ts-jest',
+    '^.+\\.tsx$': 'ts-jest',
   },
+  setupFilesAfterEnv: ['<rootDir>/tests/setup.ts'],
   collectCoverageFrom: [
     'src/**/*.ts',
     'src/**/*.tsx',
@@ -26,6 +28,7 @@ module.exports = {
     '^@/(.*)$': '<rootDir>/src/$1',
     '^@gui/(.*)$': '<rootDir>/src/gui/$1',
     '^@bot/(.*)$': '<rootDir>/src/bot/$1',
+    '\\.(css|less|scss|sass)$': 'identity-obj-proxy',
   },
 };
 

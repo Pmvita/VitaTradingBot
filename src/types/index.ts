@@ -127,6 +127,7 @@ export interface StrategyConfig {
   type: StrategyType;
   name: string;
   enabled: boolean;
+  symbol: string; // Trading pair symbol (e.g., "BTC/USDT")
   timeframe: Timeframe;
   parameters: Record<string, any>;
   riskManagement: RiskManagementConfig;

@@ -7,6 +7,7 @@ import {
   Position,
   Trade,
   Signal,
+  OrderSide,
 } from '../types';
 import { BaseStrategy } from './strategies/BaseStrategy';
 import { MeanReversionStrategy } from './strategies/MeanReversion';
@@ -18,6 +19,8 @@ import { priceService } from '../api/PriceService';
 import { dexService } from '../wallet/DEXService';
 import { tradeRepository } from '../storage/TradeRepository';
 import { walletService } from '../wallet/WalletService';
+import { orderManager } from './execution/OrderManager';
+import { PAPER_TRADING_INITIAL_CAPITAL } from '../constants';
 import { logger } from '../utils/logger';
 
 class TradingBot {
@@ -62,16 +65,34 @@ class TradingBot {
         throw new Error('Invalid strategy configuration');
       }
 
-      // Check wallet connection
-      const wallet = walletService.getCurrentWallet();
-      if (!wallet) {
-        throw new Error('Wallet not connected');
-      }
+      // Check trading mode
+      const tradingMode = localStorage.getItem('trading-mode');
+      
+      if (tradingMode === 'paper') {
+        // Paper trading: initialize paper trading executor if needed
+        const { paperTradingExecutor } = await import('./execution/PaperTradingExecutor');
+        const balances = paperTradingExecutor.getAllBalances();
+        if (balances.length === 0) {
+          // Initialize with default capital if not already initialized
+          paperTradingExecutor.initialize(PAPER_TRADING_INITIAL_CAPITAL, 'USDT');
+        }
+        
+        // Get balance from paper trading executor
+        const quoteCurrency = config.symbol.split('/')[1] || 'USDT';
+        const balance = paperTradingExecutor.getBalance(quoteCurrency);
+        this.state.balance = balance?.amount || 0;
+      } else {
+        // Live trading: check wallet connection
+        const wallet = walletService.getCurrentWallet();
+        if (!wallet) {
+          throw new Error('Wallet not connected');
+        }
 
-      // Update balance
-      const balanceResult = await walletService.getBalance(wallet.address);
-      if (balanceResult.success && balanceResult.data) {
-        this.state.balance = parseFloat(balanceResult.data);
+        // Update balance
+        const balanceResult = await walletService.getBalance(wallet.address);
+        if (balanceResult.success && balanceResult.data) {
+          this.state.balance = parseFloat(balanceResult.data);
+        }
       }
 
       // Load existing positions and orders
@@ -87,7 +108,7 @@ class TradingBot {
         this.executeTradingCycle();
       }, this.updateInterval);
 
-      logger.info('Trading bot started', { strategy: config.name });
+      logger.info('Trading bot started', { strategy: config.name, symbol: config.symbol, mode: tradingMode });
     } catch (error) {
       logger.error('Failed to start bot', error as Error);
       this.status = 'ERROR';
@@ -164,8 +185,8 @@ class TradingBot {
         return;
       }
 
-      // Get market data
-      const symbol = 'BTC/USDT'; // This should come from config
+      // Get market data - use symbol from config
+      const symbol = this.strategyConfig.symbol || 'BTC/USDT';
       const data = await timeframeManager.getData(symbol, this.strategyConfig.timeframe, 100);
 
       if (data.length === 0) {
@@ -257,29 +278,68 @@ class TradingBot {
 
       const currentPrice = priceResult.data.price;
 
-      // Create order (in paper trading mode, this would be simulated)
-      // For now, we'll create a position directly
-      const position: Position = {
-        id: `pos-${Date.now()}`,
+      // Create order and execute based on trading mode
+      const order = orderManager.createOrder(
+        'MARKET',
+        signal.side as OrderSide,
         symbol,
-        side: signal.side as OrderSide,
-        entryPrice: currentPrice,
-        currentPrice: currentPrice,
-        amount: positionSizeResult.size,
-        value: positionSizeResult.size * currentPrice,
-        unrealizedPnL: 0,
-        unrealizedPnLPercent: 0,
-        realizedPnL: 0,
-        openedAt: Date.now(),
-        strategy: this.strategyConfig.id,
-        stopLoss: signal.stopLoss,
-        takeProfit: signal.takeProfit,
-      };
+        positionSizeResult.size.toString()
+      );
 
-      this.state.positions.push(position);
-      await tradeRepository.savePosition(position);
+      let orderExecuted = false;
 
-      logger.info('Position opened', { position, signal: signal.reason });
+      if (tradingMode === 'paper') {
+        // Execute using paper trading executor
+        const { paperTradingExecutor } = await import('./execution/PaperTradingExecutor');
+        if (signal.side === 'BUY') {
+          orderExecuted = await paperTradingExecutor.executeBuy(order, symbol);
+        } else if (signal.side === 'SELL') {
+          orderExecuted = await paperTradingExecutor.executeSell(order, symbol);
+        }
+
+        if (orderExecuted) {
+          // Get position from paper trading executor
+          const paperPositions = paperTradingExecutor.getPositions();
+          const newPosition = paperPositions.find(p => p.symbol === symbol);
+          if (newPosition) {
+            newPosition.strategy = this.strategyConfig.id;
+            newPosition.stopLoss = signal.stopLoss;
+            newPosition.takeProfit = signal.takeProfit;
+            this.state.positions.push(newPosition);
+            await tradeRepository.savePosition(newPosition);
+          }
+        }
+      } else {
+        // Live trading: use DEX or CEX executor
+        // For now, create position directly (executor integration can be added later)
+        const position: Position = {
+          id: `pos-${Date.now()}`,
+          symbol,
+          side: signal.side as OrderSide,
+          entryPrice: currentPrice,
+          currentPrice: currentPrice,
+          amount: positionSizeResult.size,
+          value: positionSizeResult.size * currentPrice,
+          unrealizedPnL: 0,
+          unrealizedPnLPercent: 0,
+          realizedPnL: 0,
+          openedAt: Date.now(),
+          strategy: this.strategyConfig.id,
+          stopLoss: signal.stopLoss,
+          takeProfit: signal.takeProfit,
+        };
+
+        this.state.positions.push(position);
+        await tradeRepository.savePosition(position);
+        await orderManager.updateOrderStatus(order.id, 'FILLED', order.amount, currentPrice.toString());
+        orderExecuted = true;
+      }
+
+      if (orderExecuted) {
+        logger.info('Position opened', { symbol, side: signal.side, reason: signal.reason });
+      } else {
+        logger.warn('Failed to execute order', { orderId: order.id, symbol });
+      }
     } catch (error) {
       logger.error('Failed to execute signal', error as Error);
     }
@@ -291,6 +351,18 @@ class TradingBot {
   private async updatePositions(): Promise<void> {
     if (!this.strategyConfig) {
       return;
+    }
+
+    const tradingMode = localStorage.getItem('trading-mode');
+    
+    // Sync with paper trading executor positions if in paper trading mode
+    if (tradingMode === 'paper') {
+      const { paperTradingExecutor } = await import('./execution/PaperTradingExecutor');
+      await paperTradingExecutor.updatePositions();
+      
+      // Sync paper trading positions with bot state
+      const paperPositions = paperTradingExecutor.getPositions();
+      this.state.positions = paperPositions.filter(p => p.strategy === this.strategyConfig?.id);
     }
 
     for (const position of this.state.positions) {
@@ -333,6 +405,38 @@ class TradingBot {
    */
   private async closePosition(position: Position, reason: string): Promise<void> {
     try {
+      const tradingMode = localStorage.getItem('trading-mode');
+      
+      // In paper trading mode, use paper trading executor to close position
+      if (tradingMode === 'paper') {
+        const { paperTradingExecutor } = await import('./execution/PaperTradingExecutor');
+        
+        // Create sell order to close position
+        const order = orderManager.createOrder(
+          'MARKET',
+          'SELL',
+          position.symbol,
+          position.amount.toString()
+        );
+        
+        const closed = await paperTradingExecutor.executeSell(order, position.symbol);
+        if (closed) {
+          // Position is already closed and trade saved by paper trading executor
+          this.state.positions = this.state.positions.filter(p => p.id !== position.id);
+          
+          // Update statistics
+          const allTrades = await tradeRepository.getAllTrades();
+          const winningTrades = allTrades.filter(t => t.pnl > 0).length;
+          this.state.winRate = allTrades.length > 0 ? (winningTrades / allTrades.length) * 100 : 0;
+          this.state.totalTrades = allTrades.length;
+          this.state.realizedPnL = allTrades.reduce((sum, t) => sum + t.pnl, 0);
+          
+          logger.info('Paper trading position closed', { positionId: position.id, reason });
+        }
+        return;
+      }
+
+      // Live trading: close position directly
       const trade: Trade = {
         id: `trade-${Date.now()}`,
         symbol: position.symbol,

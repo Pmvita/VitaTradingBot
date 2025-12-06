@@ -7,12 +7,14 @@ import './StrategyConfig.css';
 interface StrategyConfigProps {
   strategyType: StrategyType;
   timeframe: Timeframe;
+  symbol: string;
   onConfigSave: (config: StrategyConfigType) => void;
 }
 
 export const StrategyConfig: React.FC<StrategyConfigProps> = ({
   strategyType,
   timeframe,
+  symbol,
   onConfigSave,
 }) => {
   const [parameters, setParameters] = useState<Record<string, any>>({});
@@ -33,6 +35,7 @@ export const StrategyConfig: React.FC<StrategyConfigProps> = ({
       type: strategyType,
       name: `${strategyType} Strategy`,
       enabled: true,
+      symbol: symbol || 'BTC/USDT',
       timeframe,
       parameters,
       riskManagement: riskConfig,

@@ -50,109 +50,136 @@ export const PriceChart: React.FC<PriceChartProps> = ({ symbol, timeframe }) => 
 
   // Initialize chart
   useEffect(() => {
-    if (!chartContainerRef.current) return;
+    if (!chartContainerRef.current) {
+      return;
+    }
 
-    // Create chart
-    const chart = createChart(chartContainerRef.current, {
-      layout: {
-        background: { type: ColorType.Solid, color: '#131829' },
-        textColor: '#94a3b8',
-      },
-      grid: {
-        vertLines: { color: '#1e293b' },
-        horzLines: { color: '#1e293b' },
-      },
-      crosshair: {
-        mode: CrosshairMode.Normal,
-      },
-      rightPriceScale: {
-        borderColor: '#1e293b',
-      },
-      timeScale: {
-        borderColor: '#1e293b',
-        timeVisible: true,
-        secondsVisible: timeframe === '1m' || timeframe === '5m',
-      },
-      width: chartContainerRef.current.clientWidth,
-      height: 500,
-    });
+    // Function to initialize the chart
+    const initChart = () => {
+      if (!chartContainerRef.current || chartRef.current) {
+        return; // Already initialized or container gone
+      }
 
-    chartRef.current = chart;
+      const containerWidth = chartContainerRef.current.clientWidth || 800;
+      const containerHeight = chartContainerRef.current.clientHeight || 500;
 
-    // Create candlestick series
-    const candlestickSeries = chart.addCandlestickSeries({
-      upColor: '#10b981',
-      downColor: '#ef4444',
-      borderVisible: false,
-      wickUpColor: '#10b981',
-      wickDownColor: '#ef4444',
-      priceScaleId: 'right',
-    });
-    candlestickSeriesRef.current = candlestickSeries;
+      try {
+        // Create chart
+        const chart = createChart(chartContainerRef.current, {
+          layout: {
+            background: { type: ColorType.Solid, color: '#131829' },
+            textColor: '#94a3b8',
+          },
+          grid: {
+            vertLines: { color: '#1e293b' },
+            horzLines: { color: '#1e293b' },
+          },
+          crosshair: {
+            mode: CrosshairMode.Normal,
+          },
+          rightPriceScale: {
+            borderColor: '#1e293b',
+          },
+          timeScale: {
+            borderColor: '#1e293b',
+            timeVisible: true,
+            secondsVisible: timeframe === '1m' || timeframe === '5m',
+          },
+          width: containerWidth,
+          height: containerHeight,
+        });
 
-    // Create volume series
-    const volumeSeries = chart.addHistogramSeries({
-      color: '#3b82f6',
-      priceFormat: {
-        type: 'volume',
-      },
-      priceScaleId: 'volume',
-    });
-    volumeSeriesRef.current = volumeSeries;
+        chartRef.current = chart;
 
-    // Mark chart as ready
-    setChartReady(true);
+        // Create candlestick series
+        const candlestickSeries = chart.addCandlestickSeries({
+          upColor: '#10b981',
+          downColor: '#ef4444',
+          borderVisible: false,
+          wickUpColor: '#10b981',
+          wickDownColor: '#ef4444',
+          priceScaleId: 'right',
+        });
+        candlestickSeriesRef.current = candlestickSeries;
+
+        // Create volume series
+        const volumeSeries = chart.addHistogramSeries({
+          color: '#3b82f6',
+          priceFormat: {
+            type: 'volume',
+          },
+          priceScaleId: 'volume',
+        });
+        volumeSeriesRef.current = volumeSeries;
+
+        // Mark chart as ready
+        setChartReady(true);
+        console.log('Chart initialized successfully');
+      } catch (error) {
+        console.error('Error initializing chart:', error);
+      }
+    };
+
+    // Try to initialize immediately
+    if (chartContainerRef.current.clientWidth > 0) {
+      initChart();
+    } else {
+      // Wait for container to get dimensions using ResizeObserver
+      const resizeObserver = new ResizeObserver(() => {
+        if (chartContainerRef.current && chartContainerRef.current.clientWidth > 0) {
+          initChart();
+          resizeObserver.disconnect();
+        }
+      });
+      resizeObserver.observe(chartContainerRef.current);
+
+      // Also try after a short delay as fallback
+      const timer = setTimeout(() => {
+        if (!chartRef.current && chartContainerRef.current) {
+          initChart();
+        }
+        resizeObserver.disconnect();
+      }, 200);
+
+      return () => {
+        resizeObserver.disconnect();
+        clearTimeout(timer);
+      };
+    }
 
     // Handle resize
     const handleResize = () => {
       if (chartContainerRef.current && chart) {
+        const newWidth = chartContainerRef.current.clientWidth || 800;
         chart.applyOptions({
-          width: chartContainerRef.current.clientWidth,
+          width: newWidth,
         });
       }
     };
 
     window.addEventListener('resize', handleResize);
 
+    // Use ResizeObserver for more accurate container size tracking
+    let resizeObserver: ResizeObserver | null = null;
+    if (chartContainerRef.current) {
+      resizeObserver = new ResizeObserver(() => {
+        handleResize();
+      });
+      resizeObserver.observe(chartContainerRef.current);
+    }
+
     return () => {
       window.removeEventListener('resize', handleResize);
-      chart.remove();
+      if (resizeObserver) {
+        resizeObserver.disconnect();
+      }
+      if (chart) {
+        chart.remove();
+      }
       setChartReady(false);
     };
   }, [timeframe]);
 
-  // Generate mock data for fallback
-  const generateMockData = useCallback((_sym: string, tf: Timeframe, count: number): OHLCV[] => {
-    const now = Date.now();
-    const intervalMs = getTimeframeSeconds(tf) * 1000;
-    const basePrice = 45000; // Base price for BTC
-    const data: OHLCV[] = [];
-
-    let currentPrice = basePrice;
-
-    for (let i = count - 1; i >= 0; i--) {
-      const timestamp = now - (i * intervalMs);
-      const change = (Math.random() - 0.5) * 1000; // Random price movement
-      const open = currentPrice;
-      const close = open + change;
-      const high = Math.max(open, close) + Math.random() * 500;
-      const low = Math.min(open, close) - Math.random() * 500;
-      const volume = Math.random() * 1000000;
-
-      data.push({
-        timestamp,
-        open,
-        high,
-        low,
-        close,
-        volume,
-      });
-
-      currentPrice = close;
-    }
-
-    return data;
-  }, []);
 
   // Calculate and update indicators
   const updateIndicators = useCallback((data: OHLCV[]) => {
@@ -217,89 +244,84 @@ export const PriceChart: React.FC<PriceChartProps> = ({ symbol, timeframe }) => 
 
   // Load historical data - only after chart is ready
   useEffect(() => {
-    if (!chartReady || !candlestickSeriesRef.current || !volumeSeriesRef.current) {
+    if (!chartReady) {
+      return;
+    }
+
+    if (!candlestickSeriesRef.current || !volumeSeriesRef.current) {
       return;
     }
 
     let cancelled = false;
-    let timeoutId: NodeJS.Timeout | null = null;
 
     const displayData = (data: OHLCV[]) => {
       if (cancelled || !candlestickSeriesRef.current || !volumeSeriesRef.current) return;
+      if (data.length === 0) {
+        console.warn('No data to display');
+        setLoading(false);
+        return;
+      }
 
-      const candlestickData: CandlestickData[] = data.map((candle) => ({
-        time: (candle.timestamp / 1000) as any,
-        open: candle.open,
-        high: candle.high,
-        low: candle.low,
-        close: candle.close,
-        volume: candle.volume,
-      }));
+      try {
+        const candlestickData: CandlestickData[] = data.map((candle) => ({
+          time: (candle.timestamp / 1000) as any,
+          open: candle.open,
+          high: candle.high,
+          low: candle.low,
+          close: candle.close,
+          volume: candle.volume,
+        }));
 
-      const volumeData = data.map((candle) => ({
-        time: (candle.timestamp / 1000) as any,
-        value: candle.volume,
-        color: candle.close >= candle.open ? '#10b981' : '#ef4444',
-      }));
+        const volumeData = data.map((candle) => ({
+          time: (candle.timestamp / 1000) as any,
+          value: candle.volume,
+          color: candle.close >= candle.open ? '#10b981' : '#ef4444',
+        }));
 
-      candlestickSeriesRef.current.setData(candlestickData);
-      volumeSeriesRef.current.setData(volumeData);
-      setCurrentPrice(data[data.length - 1].close);
-      setHistoricalData(data);
+        if (candlestickSeriesRef.current && volumeSeriesRef.current) {
+          candlestickSeriesRef.current.setData(candlestickData);
+          volumeSeriesRef.current.setData(volumeData);
+          setCurrentPrice(data[data.length - 1].close);
+          setHistoricalData(data);
+          setLoading(false);
 
-      // Update indicators after data is loaded
-      setTimeout(() => {
-        if (!cancelled) {
-          updateIndicators(data);
+          // Update indicators after data is loaded
+          setTimeout(() => {
+            if (!cancelled) {
+              updateIndicators(data);
+            }
+          }, 100);
         }
-      }, 100);
+      } catch (error) {
+        console.error('Error displaying chart data:', error);
+        setLoading(false);
+      }
     };
 
-    const loadMockData = () => {
-      if (cancelled) return;
-      const mockData = generateMockData(symbol, timeframe, 200);
-      displayData(mockData);
-      setLoading(false);
-    };
-
-  const loadData = async () => {
-    setLoading(true);
-      
-      // Add timeout to prevent endless loading - use mock data after 5 seconds
-      timeoutId = setTimeout(() => {
-        if (!cancelled) {
-          console.warn('Chart data loading timeout, using mock data');
-          loadMockData();
-        }
-      }, 5000); // 5 second timeout
+    const loadData = async () => {
+      setLoading(true);
+      console.log('Loading chart data for', symbol, timeframe);
 
       try {
         const result = await priceService.getHistoricalData(symbol, timeframe, 200);
 
         if (cancelled) {
-          if (timeoutId) clearTimeout(timeoutId);
           return;
         }
 
-        if (timeoutId) clearTimeout(timeoutId);
-
         if (result.success && result.data && result.data.length > 0) {
+          console.log('Chart data loaded successfully:', result.data.length, 'candles');
           displayData(result.data);
-          setLoading(false);
         } else {
-          // Generate mock data if API fails
-          console.warn('Failed to load chart data, using mock data:', result.error);
-          loadMockData();
+          console.error('Failed to load chart data:', result.error);
+          setLoading(false);
         }
       } catch (error) {
         if (cancelled) {
-          if (timeoutId) clearTimeout(timeoutId);
           return;
         }
-        if (timeoutId) clearTimeout(timeoutId);
         console.error('Error loading chart data:', error);
-        // Generate mock data on error
-        loadMockData();
+        setLoading(false);
       }
     };
 
@@ -307,9 +329,8 @@ export const PriceChart: React.FC<PriceChartProps> = ({ symbol, timeframe }) => 
 
     return () => {
       cancelled = true;
-      if (timeoutId) clearTimeout(timeoutId);
     };
-  }, [symbol, timeframe, chartReady, updateIndicators, generateMockData]);
+  }, [symbol, timeframe, chartReady, updateIndicators]);
 
   // Subscribe to real-time updates
   useEffect(() => {
