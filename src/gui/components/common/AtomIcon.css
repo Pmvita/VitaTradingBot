@@ -1,0 +1,219 @@
+.atom-icon {
+  width: 200px;
+  height: 200px;
+  margin: 0 auto;
+  position: relative;
+  animation: float 6s ease-in-out infinite;
+}
+
+.atom-container {
+  width: 100%;
+  height: 100%;
+  position: relative;
+  transform-style: preserve-3d;
+}
+
+/* Nucleus - pulsing center */
+.nucleus {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 16px;
+  height: 16px;
+  margin: -8px 0 0 -8px;
+  background: var(--primary);
+  border-radius: 50%;
+  box-shadow: 
+    0 0 20px rgba(59, 130, 246, 0.8),
+    0 0 40px rgba(59, 130, 246, 0.4),
+    inset 0 0 10px rgba(255, 255, 255, 0.3);
+  animation: pulse-nucleus 2s ease-in-out infinite;
+  z-index: 10;
+}
+
+/* Orbit container */
+.orbit {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 120px;
+  height: 40px;
+  margin: -20px 0 0 -60px;
+  transform-style: preserve-3d;
+}
+
+/* Orbit ring (elliptical path) */
+.orbit-ring {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  border: 2px solid rgba(59, 130, 246, 0.2);
+  border-radius: 50%;
+  border-style: dashed;
+  animation: orbit-rotate 3s linear infinite;
+}
+
+/* Electron */
+.electron {
+  position: absolute;
+  width: 12px;
+  height: 12px;
+  background: var(--primary);
+  border-radius: 50%;
+  box-shadow: 
+    0 0 10px rgba(59, 130, 246, 0.8),
+    0 0 20px rgba(59, 130, 246, 0.4);
+  top: 50%;
+  left: 50%;
+  margin-top: -6px;
+  margin-left: -6px;
+  animation: electron-orbit 3s linear infinite, electron-glow 2s ease-in-out infinite;
+  z-index: 5;
+}
+
+/* Orbit 1 - horizontal ellipse */
+.orbit-1 {
+  transform: rotateX(0deg);
+}
+
+.orbit-1 .electron {
+  animation: electron-orbit-1 3s linear infinite, electron-glow 2s ease-in-out infinite;
+}
+
+/* Orbit 2 - rotated 60 degrees */
+.orbit-2 {
+  transform: rotateX(60deg) rotateY(0deg);
+}
+
+.orbit-2 .electron {
+  animation: electron-orbit-2 4s linear infinite, electron-glow 2s ease-in-out infinite 0.67s;
+}
+
+.orbit-2 .orbit-ring {
+  animation: orbit-rotate 4s linear infinite;
+}
+
+/* Orbit 3 - rotated 120 degrees */
+.orbit-3 {
+  transform: rotateX(120deg) rotateY(0deg);
+}
+
+.orbit-3 .electron {
+  animation: electron-orbit-3 5s linear infinite, electron-glow 2s ease-in-out infinite 1.33s;
+}
+
+.orbit-3 .orbit-ring {
+  animation: orbit-rotate 5s linear infinite reverse;
+}
+
+/* Animations */
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0px) rotate(0deg);
+  }
+  33% {
+    transform: translateY(-10px) rotate(2deg);
+  }
+  66% {
+    transform: translateY(5px) rotate(-2deg);
+  }
+}
+
+@keyframes pulse-nucleus {
+  0%, 100% {
+    opacity: 1;
+    transform: scale(1);
+    box-shadow: 
+      0 0 20px rgba(59, 130, 246, 0.8),
+      0 0 40px rgba(59, 130, 246, 0.4),
+      inset 0 0 10px rgba(255, 255, 255, 0.3);
+  }
+  50% {
+    opacity: 0.9;
+    transform: scale(1.15);
+    box-shadow: 
+      0 0 30px rgba(59, 130, 246, 1),
+      0 0 60px rgba(59, 130, 246, 0.6),
+      inset 0 0 15px rgba(255, 255, 255, 0.4);
+  }
+}
+
+@keyframes electron-glow {
+  0%, 100% {
+    opacity: 1;
+    box-shadow: 
+      0 0 10px rgba(59, 130, 246, 0.8),
+      0 0 20px rgba(59, 130, 246, 0.4);
+  }
+  50% {
+    opacity: 0.8;
+    box-shadow: 
+      0 0 15px rgba(59, 130, 246, 1),
+      0 0 30px rgba(59, 130, 246, 0.6);
+  }
+}
+
+@keyframes orbit-rotate {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Electron orbital motion - elliptical paths */
+@keyframes electron-orbit-1 {
+  0% {
+    transform: translateX(60px) translateY(0px);
+  }
+  25% {
+    transform: translateX(0px) translateY(20px);
+  }
+  50% {
+    transform: translateX(-60px) translateY(0px);
+  }
+  75% {
+    transform: translateX(0px) translateY(-20px);
+  }
+  100% {
+    transform: translateX(60px) translateY(0px);
+  }
+}
+
+@keyframes electron-orbit-2 {
+  0% {
+    transform: translateX(60px) translateY(0px) rotateZ(60deg);
+  }
+  25% {
+    transform: translateX(0px) translateY(20px) rotateZ(60deg);
+  }
+  50% {
+    transform: translateX(-60px) translateY(0px) rotateZ(60deg);
+  }
+  75% {
+    transform: translateX(0px) translateY(-20px) rotateZ(60deg);
+  }
+  100% {
+    transform: translateX(60px) translateY(0px) rotateZ(60deg);
+  }
+}
+
+@keyframes electron-orbit-3 {
+  0% {
+    transform: translateX(60px) translateY(0px) rotateZ(120deg);
+  }
+  25% {
+    transform: translateX(0px) translateY(20px) rotateZ(120deg);
+  }
+  50% {
+    transform: translateX(-60px) translateY(0px) rotateZ(120deg);
+  }
+  75% {
+    transform: translateX(0px) translateY(-20px) rotateZ(120deg);
+  }
+  100% {
+    transform: translateX(60px) translateY(0px) rotateZ(120deg);
+  }
+}
+

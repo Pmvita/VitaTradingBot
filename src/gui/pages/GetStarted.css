@@ -1,0 +1,249 @@
+.get-started {
+  width: 100vw;
+  height: 100vh;
+  background: linear-gradient(135deg, #0a0e27 0%, #1a1f35 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  position: relative;
+}
+
+.get-started::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: radial-gradient(circle at 50% 50%, rgba(59, 130, 246, 0.1) 0%, transparent 70%);
+  pointer-events: none;
+}
+
+.get-started-container {
+  text-align: center;
+  z-index: 1;
+  max-width: 800px;
+  padding: 40px;
+}
+
+.get-started-header {
+  margin-bottom: 60px;
+  animation: fadeInDown 0.8s ease-out;
+}
+
+.app-title {
+  font-size: 48px;
+  font-weight: 700;
+  background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  margin-bottom: 16px;
+  letter-spacing: -1px;
+}
+
+.app-subtitle {
+  font-size: 18px;
+  color: var(--text-secondary);
+  font-weight: 400;
+}
+
+.atom-container {
+  cursor: pointer;
+  transition: transform 0.3s ease;
+  animation: fadeInUp 1s ease-out 0.3s both;
+}
+
+.atom-container:hover {
+  transform: scale(1.05);
+}
+
+.atom-container:active {
+  transform: scale(0.95);
+}
+
+.click-hint {
+  margin-top: 32px;
+  font-size: 16px;
+  color: var(--text-secondary);
+  opacity: 0.7;
+  animation: pulse 2s ease-in-out infinite;
+}
+
+.options-container {
+  animation: fadeIn 0.5s ease-out;
+  width: 100%;
+}
+
+.options-container h2 {
+  font-size: 32px;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 40px;
+}
+
+.options-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 24px;
+  margin-bottom: 32px;
+}
+
+.option-card {
+  background: var(--bg-surface);
+  border: 2px solid var(--border);
+  border-radius: 16px;
+  padding: 32px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.option-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: linear-gradient(90deg, var(--primary), var(--accent));
+  transform: scaleX(0);
+  transition: transform 0.3s ease;
+}
+
+.option-card:hover {
+  transform: translateY(-8px);
+  border-color: var(--primary);
+  box-shadow: 0 8px 32px rgba(59, 130, 246, 0.2);
+}
+
+.option-card:hover::before {
+  transform: scaleX(1);
+}
+
+.option-icon {
+  width: 80px;
+  height: 80px;
+  margin: 0 auto 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  transition: all 0.3s ease;
+}
+
+.option-card:hover .option-icon {
+  transform: scale(1.1) rotate(5deg);
+}
+
+.wallet-icon {
+  background: linear-gradient(135deg, rgba(59, 130, 246, 0.2), rgba(59, 130, 246, 0.1));
+  color: var(--primary);
+}
+
+.paper-icon {
+  background: linear-gradient(135deg, rgba(139, 92, 246, 0.2), rgba(139, 92, 246, 0.1));
+  color: var(--accent);
+}
+
+.option-icon svg {
+  width: 40px;
+  height: 40px;
+  stroke-width: 2;
+}
+
+.option-card h3 {
+  font-size: 24px;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 12px;
+}
+
+.option-card p {
+  font-size: 14px;
+  color: var(--text-secondary);
+  line-height: 1.6;
+  margin-bottom: 16px;
+}
+
+.option-badge {
+  display: inline-block;
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.wallet-icon + h3 + p + .option-badge {
+  background: rgba(59, 130, 246, 0.2);
+  color: var(--primary);
+  border: 1px solid var(--primary);
+}
+
+.paper-icon + h3 + p + .option-badge {
+  background: rgba(139, 92, 246, 0.2);
+  color: var(--accent);
+  border: 1px solid var(--accent);
+}
+
+.back-button {
+  background: transparent;
+  border: 1px solid var(--border);
+  color: var(--text-secondary);
+  padding: 12px 24px;
+  border-radius: 8px;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.back-button:hover {
+  border-color: var(--text-primary);
+  color: var(--text-primary);
+  background: var(--bg-elevated);
+}
+
+@keyframes fadeInDown {
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 0.7;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+

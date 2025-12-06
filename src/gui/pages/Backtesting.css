@@ -1,0 +1,244 @@
+.backtesting-page {
+  padding: 24px;
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+.backtesting-header {
+  margin-bottom: 32px;
+}
+
+.backtesting-header h2 {
+  margin: 0 0 8px 0;
+  font-size: 28px;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.backtesting-header .subtitle {
+  margin: 0;
+  font-size: 16px;
+  color: var(--text-secondary);
+}
+
+.backtesting-container {
+  display: flex;
+  gap: 24px;
+  flex-wrap: wrap;
+}
+
+.backtesting-config {
+  flex: 1;
+  min-width: 400px;
+}
+
+.config-section {
+  background: var(--bg-surface);
+  border-radius: 8px;
+  padding: 24px;
+  border: 1px solid var(--border);
+}
+
+.config-section h3 {
+  margin: 0 0 20px 0;
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.config-group {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.config-item {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.config-item label {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--text-primary);
+}
+
+.config-input {
+  padding: 10px 12px;
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  color: var(--text-primary);
+  font-size: 14px;
+  transition: border-color 0.2s;
+}
+
+.config-input:hover {
+  border-color: var(--primary);
+}
+
+.config-input:focus {
+  outline: none;
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+.run-backtest-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  padding: 14px 24px;
+  background: var(--primary);
+  border: none;
+  border-radius: 6px;
+  color: white;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: opacity 0.2s;
+}
+
+.run-backtest-btn:hover:not(:disabled) {
+  opacity: 0.9;
+}
+
+.run-backtest-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.backtesting-results {
+  flex: 1;
+  min-width: 500px;
+  background: var(--bg-surface);
+  border-radius: 8px;
+  padding: 24px;
+  border: 1px solid var(--border);
+}
+
+.results-header {
+  margin-bottom: 24px;
+  padding-bottom: 20px;
+  border-bottom: 1px solid var(--border);
+}
+
+.results-header h3 {
+  margin: 0 0 16px 0;
+  font-size: 20px;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.results-summary {
+  display: flex;
+  gap: 16px;
+}
+
+.summary-badge {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 16px 20px;
+  background: var(--bg-elevated);
+  border-radius: 8px;
+  border: 2px solid var(--border);
+}
+
+.summary-badge.positive {
+  border-color: #10b981;
+  background: rgba(16, 185, 129, 0.1);
+}
+
+.summary-badge.negative {
+  border-color: #ef4444;
+  background: rgba(239, 68, 68, 0.1);
+}
+
+.badge-label {
+  font-size: 12px;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.badge-value {
+  font-size: 24px;
+  font-weight: 700;
+  color: var(--text-primary);
+  font-family: 'JetBrains Mono', monospace;
+}
+
+.results-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 16px;
+}
+
+.result-card {
+  background: var(--bg-elevated);
+  border-radius: 8px;
+  padding: 16px;
+  border: 1px solid var(--border);
+  text-align: center;
+}
+
+.result-label {
+  font-size: 12px;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 8px;
+}
+
+.result-value {
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--text-primary);
+  font-family: 'JetBrains Mono', monospace;
+}
+
+.result-value.positive {
+  color: #10b981;
+}
+
+.result-value.negative {
+  color: #ef4444;
+}
+
+.backtesting-placeholder {
+  flex: 1;
+  min-width: 500px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 60px 20px;
+  background: var(--bg-surface);
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  text-align: center;
+  color: var(--text-secondary);
+}
+
+.backtesting-placeholder svg {
+  margin-bottom: 16px;
+  opacity: 0.5;
+}
+
+.backtesting-placeholder h3 {
+  margin: 0 0 8px 0;
+  font-size: 20px;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.backtesting-placeholder p {
+  margin: 0;
+  font-size: 14px;
+  color: var(--text-secondary);
+}
+

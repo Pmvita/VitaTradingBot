@@ -1,0 +1,80 @@
+.recent-trades {
+  overflow-x: auto;
+}
+
+.recent-trades.empty {
+  padding: 40px;
+  text-align: center;
+  color: var(--text-secondary);
+}
+
+.trades-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+}
+
+.trades-table thead {
+  background: var(--bg-elevated);
+  border-bottom: 2px solid var(--border);
+}
+
+.trades-table th {
+  padding: 12px;
+  text-align: left;
+  font-weight: 600;
+  color: var(--text-secondary);
+  font-size: 12px;
+  text-transform: uppercase;
+}
+
+.trades-table td {
+  padding: 12px;
+  border-bottom: 1px solid var(--border);
+  color: var(--text-primary);
+}
+
+.trades-table tbody tr:hover {
+  background: var(--bg-elevated);
+}
+
+.side {
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+.side.buy {
+  background: rgba(16, 185, 129, 0.2);
+  color: var(--success);
+}
+
+.side.sell {
+  background: rgba(239, 68, 68, 0.2);
+  color: var(--danger);
+}
+
+.positive {
+  color: var(--success);
+  font-weight: 600;
+}
+
+.negative {
+  color: var(--danger);
+  font-weight: 600;
+}
+
+.status-badge {
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.status-badge.completed {
+  background: rgba(16, 185, 129, 0.2);
+  color: var(--success);
+}
+

@@ -1,0 +1,52 @@
+.fund-summary {
+  background: var(--bg-surface);
+  border-radius: 8px;
+  padding: 20px;
+  border: 1px solid var(--border);
+}
+
+.summary-header {
+  margin-bottom: 16px;
+}
+
+.summary-header h3 {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.summary-content {
+  display: flex;
+  gap: 24px;
+  flex-wrap: wrap;
+}
+
+.total-value,
+.currency-count {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.total-value .label,
+.currency-count .label {
+  font-size: 12px;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.total-value .value {
+  font-size: 28px;
+  font-weight: 700;
+  color: var(--primary);
+  font-family: 'JetBrains Mono', monospace;
+}
+
+.currency-count .value {
+  font-size: 24px;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+

@@ -1,0 +1,79 @@
+.page-transition {
+  width: 100%;
+  height: 100%;
+  position: relative;
+  transition: opacity 0.3s ease, transform 0.3s ease;
+}
+
+.page-transition.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.page-transition.hidden {
+  opacity: 0;
+  transform: translateY(10px);
+}
+
+.page-transition.loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 400px;
+  background: var(--bg-primary);
+}
+
+.transition-content {
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 24px;
+}
+
+.transition-message {
+  font-size: 16px;
+  color: var(--text-secondary);
+  margin-top: 16px;
+  animation: fadeInUp 0.5s ease-out 0.3s both;
+}
+
+/* Size variants */
+.page-transition.size-small .atom-icon {
+  width: 100px;
+  height: 100px;
+}
+
+.page-transition.size-medium .atom-icon {
+  width: 200px;
+  height: 200px;
+}
+
+.page-transition.size-large .atom-icon {
+  width: 300px;
+  height: 300px;
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Full screen overlay variant */
+.page-transition.loading.fullscreen {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 9999;
+  background: rgba(10, 14, 39, 0.95);
+  backdrop-filter: blur(8px);
+}
+

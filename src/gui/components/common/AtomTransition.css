@@ -1,0 +1,67 @@
+.atom-transition {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(10, 14, 39, 0.95);
+  backdrop-filter: blur(8px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10000;
+  transition: opacity 0.4s ease, visibility 0.4s ease; /* Slightly longer fade for smoother feel */
+}
+
+.atom-transition.visible {
+  opacity: 1;
+  visibility: visible;
+}
+
+.atom-transition.hidden {
+  opacity: 0;
+  visibility: hidden;
+}
+
+.atom-transition-content {
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 24px;
+}
+
+.atom-transition-message {
+  font-size: 18px;
+  color: var(--text-secondary);
+  font-weight: 500;
+  animation: fadeInUp 0.5s ease-out 0.3s both;
+}
+
+/* Size variants */
+.atom-transition.size-small .atom-icon {
+  width: 120px;
+  height: 120px;
+}
+
+.atom-transition.size-medium .atom-icon {
+  width: 200px;
+  height: 200px;
+}
+
+.atom-transition.size-large .atom-icon {
+  width: 300px;
+  height: 300px;
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+

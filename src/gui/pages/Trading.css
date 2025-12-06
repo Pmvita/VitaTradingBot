@@ -1,0 +1,158 @@
+.trading-page {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.trading-header h2 {
+  font-size: 24px;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.trading-panel {
+  background: var(--bg-surface);
+  border-radius: 8px;
+  padding: 20px;
+  border: 1px solid var(--border);
+}
+
+.trading-content {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: 24px;
+}
+
+.chart-section {
+  background: var(--bg-surface);
+  border-radius: 8px;
+  padding: 20px;
+  border: 1px solid var(--border);
+  min-height: 500px;
+}
+
+.chart-header-controls {
+  margin-bottom: 16px;
+  padding: 0;
+  background: transparent;
+  border-radius: 8px;
+}
+
+.symbol-selector-wrapper {
+  background: var(--bg-surface);
+  border-radius: 8px;
+  padding: 16px;
+  border: 1px solid var(--border);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.symbol-selector-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 16px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--border);
+}
+
+.symbol-selector-header .section-title {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--text-primary);
+  flex: 1;
+}
+
+.badge-paper {
+  background: var(--primary);
+  color: white;
+  padding: 4px 10px;
+  border-radius: 12px;
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.symbol-selector {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.symbol-selector label {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--text-secondary);
+  min-width: 90px;
+}
+
+.symbol-select {
+  flex: 1;
+  min-width: 200px;
+  padding: 10px 14px;
+  background: var(--bg-elevated);
+  border: 2px solid var(--border);
+  border-radius: 8px;
+  color: var(--text-primary);
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  font-family: 'JetBrains Mono', monospace;
+}
+
+.symbol-select:hover {
+  border-color: var(--primary);
+  background: var(--bg-surface);
+}
+
+.symbol-select:focus {
+  outline: none;
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+  background: var(--bg-surface);
+}
+
+.symbol-info {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 14px;
+  background: var(--bg-elevated);
+  border-radius: 6px;
+  border: 1px solid var(--border);
+  font-family: 'JetBrains Mono', monospace;
+}
+
+.symbol-base {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--primary);
+}
+
+.symbol-separator {
+  font-size: 14px;
+  color: var(--text-secondary);
+  font-weight: 400;
+}
+
+.symbol-quote {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.config-section {
+  background: var(--bg-surface);
+  border-radius: 8px;
+  padding: 20px;
+  border: 1px solid var(--border);
+}
+
+@media (max-width: 1200px) {
+  .trading-content {
+    grid-template-columns: 1fr;
+  }
+}
+
